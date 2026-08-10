@@ -8,8 +8,10 @@ import {
   deleteProject,
   fetchMessages,
 } from '../../lib/api.js'
+import { useForceDarkTheme } from '../../lib/theme.jsx'
 
 export default function AdminDashboard() {
+  useForceDarkTheme()
   const navigate = useNavigate()
   const [tab, setTab] = useState('projects') // projects | messages
   const [projects, setProjects] = useState([])

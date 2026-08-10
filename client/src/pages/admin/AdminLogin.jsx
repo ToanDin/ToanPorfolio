@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { adminLogin } from '../../lib/api.js'
+import { useForceDarkTheme } from '../../lib/theme.jsx'
 
 export default function AdminLogin() {
+  useForceDarkTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')

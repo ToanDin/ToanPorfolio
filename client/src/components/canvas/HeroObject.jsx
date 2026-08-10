@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Color } from 'three'
 import { useFrame } from '@react-three/fiber'
 import { Float, MeshDistortMaterial } from '@react-three/drei'
 import { useGSAP } from '@gsap/react'
@@ -12,7 +13,12 @@ gsap.registerPlugin(ScrollTrigger, useGSAP)
  * Khi cuộn trang, GSAP ScrollTrigger điều khiển vị trí / scale / màu / độ mờ
  * theo từng section (#about, #skills, #projects).
  */
-export default function HeroObject({ isMobile, reducedMotion }) {
+export default function HeroObject({
+  isMobile,
+  reducedMotion,
+  baseColor = '#7b61ff',
+  cyanColor = '#00d4ff',
+}) {
   const group = useRef()
   const mat = useRef()
 
@@ -40,16 +46,16 @@ export default function HeroObject({ isMobile, reducedMotion }) {
     gsap.to(g.position, { x: sideX, y: -0.2, scrollTrigger: common('#about') })
     gsap.to(g.scale, { x: 0.75, y: 0.75, z: 0.75, scrollTrigger: common('#about') })
 
-    // About -> Skills: đổi màu tím -> cyan, distort mạnh hơn
-    const cyan = { r: 0 / 255, g: 212 / 255, b: 255 / 255 }
-    gsap.to(m.color, { ...cyan, scrollTrigger: common('#skills') })
+    // About -> Skills: đổi màu -> cyan, trôi sang trái
+    const cyan = new Color(cyanColor)
+    gsap.to(m.color, { r: cyan.r, g: cyan.g, b: cyan.b, scrollTrigger: common('#skills') })
     gsap.to(g.position, { x: -sideX, scrollTrigger: common('#skills') })
 
     // Skills -> Projects: thu nhỏ và mờ dần, nhường sân khấu cho nội dung
     gsap.to(g.scale, { x: 0.35, y: 0.35, z: 0.35, scrollTrigger: common('#projects') })
     gsap.to(m, { opacity: 0, scrollTrigger: common('#projects') })
     gsap.to(g.position, { y: -1.4, scrollTrigger: common('#projects') })
-  }, [isMobile, reducedMotion])
+  }, [isMobile, reducedMotion, cyanColor])
 
   return (
     <Float speed={1.6} rotationIntensity={0.4} floatIntensity={0.9}>
@@ -58,7 +64,7 @@ export default function HeroObject({ isMobile, reducedMotion }) {
           <icosahedronGeometry args={[1.15, isMobile ? 4 : 12]} />
           <MeshDistortMaterial
             ref={mat}
-            color="#7c6cff"
+            color={baseColor}
             distort={0.42}
             speed={isMobile ? 1.2 : 2}
             roughness={0.15}

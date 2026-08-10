@@ -7,7 +7,7 @@ import * as random from 'maath/random'
  * Nền galaxy: đám mây hạt hình cầu xoay chậm liên tục,
  * nghiêng nhẹ theo vị trí chuột (parallax).
  */
-export default function StarsBackground({ count = 4500, mouse }) {
+export default function StarsBackground({ count = 4500, mouse, color = '#a8b4ff' }) {
   const ref = useRef()
 
   // Sinh vị trí hạt một lần duy nhất
@@ -38,7 +38,7 @@ export default function StarsBackground({ count = 4500, mouse }) {
       <Points key={count} ref={ref} positions={positions} stride={3} frustumCulled={false}>
         <PointMaterial
           transparent
-          color="#a8b4ff"
+          color={color}
           size={0.0045}
           sizeAttenuation
           depthWrite={false}

@@ -1,16 +1,18 @@
 import SectionTitle from '../ui/SectionTitle.jsx'
 import Reveal from '../ui/Reveal.jsx'
-import { profile } from '../../data/profile.js'
+import { content } from '../../data/profile.js'
+import { useLang } from '../../lib/i18n.jsx'
 
 export default function About() {
+  const { t, lang } = useLang()
   return (
     <section id="about" className="section-shell">
       <div className="md:max-w-[55%]">
         <Reveal>
-          <SectionTitle kicker="Giới thiệu" title="Về tôi" />
+          <SectionTitle kicker={t('about.kicker')} title={t('about.title')} />
         </Reveal>
-        <div className="space-y-5 text-lg leading-relaxed text-slate-300">
-          {profile.about.map((para, i) => (
+        <div className="space-y-5 text-lg leading-relaxed text-ink-soft">
+          {content[lang].about.map((para, i) => (
             <Reveal key={i} delay={i * 120}>
               <p>{para}</p>
             </Reveal>

@@ -2,13 +2,54 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==== Design tokens (theo phong cách vinaysomawat.github.io) ==== */
+:root,
+[data-theme='dark'] {
+  --c-bg: 5 8 22;          /* #050816 */
+  --c-panel: 11 16 35;     /* #0b1023 */
+  --c-text: 244 246 251;   /* #f4f6fb */
+  --c-text-soft: rgba(244, 246, 251, 0.72);
+  --c-text-mute: rgba(244, 246, 251, 0.45);
+  --c-accent: 79 140 255;  /* #4f8cff */
+  --c-accentp: 123 97 255; /* #7b61ff */
+  --c-accent2: 0 212 255;  /* #00d4ff */
+  --c-surface: rgba(255, 255, 255, 0.04);
+  --c-surface-2: rgba(255, 255, 255, 0.08);
+  --c-border: rgba(255, 255, 255, 0.08);
+  --c-border-strong: rgba(255, 255, 255, 0.16);
+  --glow: rgba(79, 140, 255, 0.35);
+  --sb-track: #0b1023;
+  --sb-thumb: #2a3354;
+  --sb-thumb-h: #3d4a75;
+}
+
+[data-theme='light'] {
+  --c-bg: 246 248 252;     /* #f6f8fc */
+  --c-panel: 255 255 255;
+  --c-text: 11 16 35;      /* #0b1023 */
+  --c-text-soft: rgba(11, 16, 35, 0.72);
+  --c-text-mute: rgba(11, 16, 35, 0.5);
+  --c-accent: 61 111 224;  /* #3d6fe0 */
+  --c-accentp: 106 78 224; /* #6a4ee0 */
+  --c-accent2: 0 152 184;  /* #0098b8 */
+  --c-surface: rgba(11, 16, 35, 0.04);
+  --c-surface-2: rgba(11, 16, 35, 0.08);
+  --c-border: rgba(11, 16, 35, 0.1);
+  --c-border-strong: rgba(11, 16, 35, 0.18);
+  --glow: rgba(61, 111, 224, 0.25);
+  --sb-track: #e8ecf5;
+  --sb-thumb: #c2cadd;
+  --sb-thumb-h: #a4afc9;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  @apply bg-night text-slate-200 font-sans antialiased;
+  @apply bg-night font-sans text-ink-soft antialiased;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Canvas 3D phủ toàn màn hình, nằm sau nội dung */
@@ -24,19 +65,19 @@ body {
   z-index: 1;
 }
 
-/* Thanh cuộn gọn gàng hợp nền tối */
+/* Thanh cuộn theo theme */
 ::-webkit-scrollbar {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a14;
+  background: var(--sb-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a40;
+  background: var(--sb-thumb);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3d3d5c;
+  background: var(--sb-thumb-h);
 }
 
 @layer components {
@@ -44,19 +85,34 @@ body {
     @apply mx-auto w-full max-w-6xl px-6 py-24 md:py-32;
   }
   .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-white transition hover:brightness-110 hover:shadow-[0_0_24px_rgba(124,108,255,0.45)];
+    @apply inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium text-white transition hover:brightness-110 hover:shadow-[0_0_24px_var(--glow)];
+    background-image: linear-gradient(135deg, rgb(var(--c-accent)), rgb(var(--c-accentp)));
   }
   .btn-ghost {
-    @apply inline-flex items-center gap-2 rounded-full border border-slate-600 px-6 py-3 font-medium text-slate-200 transition hover:border-accent hover:text-white;
+    @apply inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 font-medium text-ink transition hover:border-accent;
   }
   .card {
-    @apply rounded-2xl border border-white/5 bg-panel/80 backdrop-blur;
+    @apply rounded-2xl border border-line bg-panel/80 backdrop-blur;
   }
   .input-dark {
-    @apply w-full rounded-xl border border-white/10 bg-night/60 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-accent;
+    @apply w-full rounded-xl border border-line bg-night/60 px-4 py-3 text-ink outline-none transition placeholder:text-ink-mute focus:border-accent;
   }
   .chip {
-    @apply rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300;
+    @apply rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink-soft;
+  }
+  /* Chữ gradient xanh -> tím -> cyan như template */
+  .grad-text {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(
+      135deg,
+      rgb(var(--c-accent)),
+      rgb(var(--c-accentp)) 55%,
+      rgb(var(--c-accent2))
+    );
+  }
+  /* Nút icon tròn trên navbar (theme / ngôn ngữ) */
+  .icon-btn {
+    @apply inline-flex h-9 items-center justify-center rounded-full border border-line bg-surface px-2.5 text-sm text-ink-soft transition hover:border-accent hover:text-ink;
   }
 }
 

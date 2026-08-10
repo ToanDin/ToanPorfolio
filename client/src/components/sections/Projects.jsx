@@ -4,10 +4,12 @@ import Reveal from '../ui/Reveal.jsx'
 import ProjectCard from '../ui/ProjectCard.jsx'
 import { fetchProjects } from '../../lib/api.js'
 import { fallbackProjects } from '../../data/fallback.js'
+import { useLang } from '../../lib/i18n.jsx'
 
 export default function Projects() {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
+  const { t } = useLang()
 
   useEffect(() => {
     let cancelled = false
@@ -28,7 +30,7 @@ export default function Projects() {
   return (
     <section id="projects" className="section-shell">
       <Reveal>
-        <SectionTitle kicker="Dự án" title="Sản phẩm tôi đã xây" />
+        <SectionTitle kicker={t('projects.kicker')} title={t('projects.title')} />
       </Reveal>
 
       {loading ? (

@@ -12,9 +12,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <script>
+      // Đặt theme trước khi CSS render để tránh nháy màn hình
+      document.documentElement.dataset.theme =
+        localStorage.getItem('portfolio-theme') === 'light' ? 'light' : 'dark'
+    </script>
   </head>
   <body>
     <div id="root"></div>

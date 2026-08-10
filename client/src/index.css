@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-night text-slate-200 font-sans antialiased;
+  overflow-x: hidden;
+}
+
+/* Canvas 3D phủ toàn màn hình, nằm sau nội dung */
+.webgl-fixed {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.content-layer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Thanh cuộn gọn gàng hợp nền tối */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a14;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a40;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3d3d5c;
+}
+
+@layer components {
+  .section-shell {
+    @apply mx-auto w-full max-w-6xl px-6 py-24 md:py-32;
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 font-medium text-white transition hover:brightness-110 hover:shadow-[0_0_24px_rgba(124,108,255,0.45)];
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-slate-600 px-6 py-3 font-medium text-slate-200 transition hover:border-accent hover:text-white;
+  }
+  .card {
+    @apply rounded-2xl border border-white/5 bg-panel/80 backdrop-blur;
+  }
+  .input-dark {
+    @apply w-full rounded-xl border border-white/10 bg-night/60 px-4 py-3 text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-accent;
+  }
+  .chip {
+    @apply rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-300;
+  }
+}
+
+/* Tôn trọng người dùng muốn giảm chuyển động */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

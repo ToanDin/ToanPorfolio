@@ -4,6 +4,7 @@ const dict = {
   vi: {
     nav: {
       about: 'Giới thiệu',
+      experience: 'Kinh nghiệm',
       skills: 'Kỹ năng',
       projects: 'Dự án',
       contact: 'Liên hệ',
@@ -16,6 +17,7 @@ const dict = {
       scrollDown: 'Cuộn xuống',
     },
     about: { kicker: 'Giới thiệu', title: 'Về tôi' },
+    experience: { kicker: 'Kinh nghiệm', title: 'Nơi tôi đã làm việc' },
     skills: {
       kicker: 'Kỹ năng',
       title: 'Tôi làm được gì',
@@ -36,6 +38,9 @@ const dict = {
     },
     detail: {
       all: '← Tất cả dự án',
+      allExp: '← Kinh nghiệm làm việc',
+      expNotFound: 'Không tìm thấy kinh nghiệm',
+      viewDetail: 'Xem chi tiết',
       live: 'Xem live demo',
       source: 'Source code',
       notFound: 'Không tìm thấy dự án',
@@ -46,6 +51,7 @@ const dict = {
   en: {
     nav: {
       about: 'About',
+      experience: 'Experience',
       skills: 'Skills',
       projects: 'Projects',
       contact: 'Contact',
@@ -58,6 +64,7 @@ const dict = {
       scrollDown: 'Scroll down',
     },
     about: { kicker: 'About', title: 'About me' },
+    experience: { kicker: 'Experience', title: 'Where I have worked' },
     skills: {
       kicker: 'Skills',
       title: 'What I can do',
@@ -78,6 +85,9 @@ const dict = {
     },
     detail: {
       all: '← All projects',
+      allExp: '← Work experience',
+      expNotFound: 'Experience not found',
+      viewDetail: 'View details',
       live: 'Live demo',
       source: 'Source code',
       notFound: 'Project not found',

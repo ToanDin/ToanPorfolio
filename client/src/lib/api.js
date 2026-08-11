@@ -27,3 +27,10 @@ export const createProject = (payload) => api.post('/projects', payload).then((r
 export const updateProject = (id, payload) => api.put(`/projects/${id}`, payload).then((r) => r.data)
 export const deleteProject = (id) => api.delete(`/projects/${id}`).then((r) => r.data)
 export const fetchMessages = () => api.get('/messages').then((r) => r.data)
+
+// ---- Experience ----
+export const fetchExperience = () => api.get('/experience').then((r) => r.data)
+export const fetchExperienceItem = (slug) => api.get(`/experience/${slug}`).then((r) => r.data)
+export const createExperience = (payload) => api.post('/experience', payload).then((r) => r.data)
+export const updateExperience = (id, payload) => api.put(`/experience/${id}`, payload).then((r) => r.data)
+export const deleteExperience = (id) => api.delete(`/experience/${id}`).then((r) => r.data)

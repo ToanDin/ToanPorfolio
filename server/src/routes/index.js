@@ -10,6 +10,13 @@ import {
 } from '../controllers/projectController.js'
 import { login } from '../controllers/authController.js'
 import { submitContact, listMessages } from '../controllers/contactController.js'
+import {
+  listExperience,
+  getExperience,
+  createExperience,
+  updateExperience,
+  deleteExperience,
+} from '../controllers/experienceController.js'
 
 const router = Router()
 
@@ -20,6 +27,8 @@ const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, standardHead
 // Public
 router.get('/projects', listProjects)
 router.get('/projects/:slug', getProject)
+router.get('/experience', listExperience)
+router.get('/experience/:slug', getExperience)
 router.post('/contact', contactLimiter, submitContact)
 router.post('/auth/login', loginLimiter, login)
 
@@ -28,5 +37,8 @@ router.post('/projects', requireAuth, createProject)
 router.put('/projects/:id', requireAuth, updateProject)
 router.delete('/projects/:id', requireAuth, deleteProject)
 router.get('/messages', requireAuth, listMessages)
+router.post('/experience', requireAuth, createExperience)
+router.put('/experience/:id', requireAuth, updateExperience)
+router.delete('/experience/:id', requireAuth, deleteExperience)
 
 export default router

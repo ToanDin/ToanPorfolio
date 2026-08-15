@@ -1,8 +1,8 @@
 // Prisma schema — PostgreSQL (thay cho MongoDB/Mongoose trước đây)
 //
-// Vercel Postgres cung cấp sẵn 2 biến môi trường:
-//   POSTGRES_PRISMA_URL      -> chuỗi kết nối qua connection pooler (dùng lúc runtime)
-//   POSTGRES_URL_NON_POOLING -> kết nối trực tiếp (dùng cho migrate/introspect)
+// Vercel Postgres (Neon) tự inject 2 biến này khi Connect database vào project:
+//   DATABASE_URL          -> chuỗi kết nối qua connection pooler (dùng lúc runtime)
+//   DATABASE_URL_UNPOOLED -> kết nối trực tiếp (dùng cho migrate/introspect)
 // Khi chạy local với Postgres thường, đặt cả 2 biến về cùng một URL.
 
 generator client {
@@ -11,8 +11,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL")
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 model Project {

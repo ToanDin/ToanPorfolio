@@ -29,7 +29,7 @@ copy .env.example .env     # Windows (macOS/Linux: cp .env.example .env)
 
 Mở `.env` và điền:
 
-1. `POSTGRES_PRISMA_URL` + `POSTGRES_URL_NON_POOLING` — chuỗi kết nối PostgreSQL.
+1. `DATABASE_URL` + `DATABASE_URL_UNPOOLED` — chuỗi kết nối PostgreSQL.
    - **Vercel Postgres**: Dashboard → Storage → Create Database → tab `.env.local`,
      hoặc chạy `vercel env pull .env`.
    - **Postgres local**: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=portfolio postgres:16`
@@ -68,7 +68,7 @@ Thêm/sửa/xóa dự án & kinh nghiệm, xem tin nhắn liên hệ.
 2. Vercel → Add New Project → chọn repo → Root Directory để mặc định (gốc repo).
    Vercel tự nhận diện Next.js.
 3. Tab **Storage** → tạo Postgres database → Connect vào project —
-   `POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING` được thêm tự động.
+   `DATABASE_URL` / `DATABASE_URL_UNPOOLED` được thêm tự động.
 4. Environment Variables: thêm `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
    `NEXT_PUBLIC_EMAILJS_*` (và `SMTP_*` nếu dùng).
 5. Deploy. Sau lần deploy đầu, tạo bảng trên DB production:
@@ -89,7 +89,7 @@ Không còn CORS, không còn `VITE_API_URL` — frontend và API cùng một or
 - **Bảo mật**: JWT hết hạn 1 ngày; rate-limit login (10 lần/15 phút) và contact
   (5 lần/15 phút) theo IP; validate đầu vào ở `lib/server/validate.js`.
 - **Serverless**: PrismaClient cache trên `globalThis`, chạy qua connection pooler
-  (`POSTGRES_PRISMA_URL`); migrate dùng `POSTGRES_URL_NON_POOLING`.
+  (`DATABASE_URL`); migrate dùng `DATABASE_URL_UNPOOLED`.
 - **Song ngữ**: bảng `experiences` lưu cột phẳng `*_vi`/`*_en`, API gộp thành `{ vi, en }`.
 - **Form liên hệ**: gửi email qua EmailJS (client) **và** lưu vào DB qua `/api/contact`
   để xem lại trong trang admin.

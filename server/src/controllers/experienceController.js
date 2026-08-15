@@ -1,64 +1,91 @@
-import mongoose from 'mongoose'
-import Experience from '../models/Experience.js'
+import { prisma } from '../config/db.js'
+import { serializeExperience } from '../utils/serialize.js'
+import { str, strArray, int, slug, isUuid, friendlyError } from '../utils/validate.js'
+
+const ORDER_BY = [{ order: 'asc' }, { createdAt: 'desc' }]
 
 export async function listExperience(req, res) {
-  const items = await Experience.find().sort({ order: 1, createdAt: -1 })
-  res.json(items)
+  const items = await prisma.experience.findMany({ orderBy: ORDER_BY })
+  res.json(items.map(serializeExperience))
 }
 
 export async function getExperience(req, res) {
-  const { slug } = req.params
-  let item = await Experience.findOne({ slug })
-  // Dữ liệu cũ có thể chưa có slug — thử tìm theo _id
-  if (!item && mongoose.isValidObjectId(slug)) {
-    item = await Experience.findById(slug)
+  const { slug: key } = req.params
+  let item = await prisma.experience.findUnique({ where: { slug: key } })
+  // Bản ghi cũ có thể chưa có slug — thử tìm theo id
+  if (!item && isUuid(key)) {
+    item = await prisma.experience.findUnique({ where: { id: key } })
   }
   if (!item) return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
-  res.json(item)
+  res.json(serializeExperience(item))
 }
 
 export async function createExperience(req, res) {
   try {
-    const item = await Experience.create(pickFields(req.body))
-    res.status(201).json(item)
+    const item = await prisma.experience.create({ data: pickFields(req.body, { create: true }) })
+    res.status(201).json(serializeExperience(item))
   } catch (err) {
     res.status(400).json({ message: friendlyError(err) })
   }
 }
 
 export async function updateExperience(req, res) {
+  if (!isUuid(req.params.id)) return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
   try {
-    const item = await Experience.findByIdAndUpdate(req.params.id, pickFields(req.body), {
-      new: true,
-      runValidators: true,
+    const item = await prisma.experience.update({
+      where: { id: req.params.id },
+      data: pickFields(req.body, { create: false }),
     })
-    if (!item) return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
-    res.json(item)
+    res.json(serializeExperience(item))
   } catch (err) {
+    if (err?.code === 'P2025') return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
     res.status(400).json({ message: friendlyError(err) })
   }
 }
 
 export async function deleteExperience(req, res) {
-  const item = await Experience.findByIdAndDelete(req.params.id)
-  if (!item) return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
-  res.json({ ok: true })
+  if (!isUuid(req.params.id)) return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
+  try {
+    await prisma.experience.delete({ where: { id: req.params.id } })
+    res.json({ ok: true })
+  } catch (err) {
+    if (err?.code === 'P2025') return res.status(404).json({ message: 'Không tìm thấy kinh nghiệm' })
+    res.status(400).json({ message: friendlyError(err) })
+  }
 }
 
-/** Chỉ nhận đúng các field cho phép */
-function pickFields(body) {
-  const allowed = ['company', 'slug', 'shortDesc', 'role', 'period', 'bullets', 'order']
+/** Chỉ nhận đúng các field cho phép; tách object { vi, en } thành cột phẳng */
+function pickFields(body = {}, { create }) {
+  const has = (k) => body[k] !== undefined
   const out = {}
-  for (const key of allowed) {
-    if (body[key] !== undefined) out[key] = body[key]
-  }
-  return out
-}
 
-function friendlyError(err) {
-  if (err?.code === 11000) return 'Slug đã tồn tại — chọn slug khác.'
-  if (err?.name === 'ValidationError') {
-    return Object.values(err.errors).map((e) => e.message).join('; ')
+  if (create || has('company')) {
+    out.company = str(body.company, { field: 'company', required: true, max: 200 })
   }
-  return 'Dữ liệu không hợp lệ.'
+  if (create || has('slug')) {
+    out.slug = slug(body.slug, { field: 'slug', allowEmpty: true })
+  }
+  if (create || has('shortDesc')) {
+    const v = body.shortDesc ?? {}
+    out.shortDescVi = str(v.vi, { field: 'shortDesc.vi', max: 300 })
+    out.shortDescEn = str(v.en, { field: 'shortDesc.en', max: 300 })
+  }
+  if (create || has('role')) {
+    const v = body.role ?? {}
+    out.roleVi = str(v.vi, { field: 'role.vi', required: true, max: 200 })
+    out.roleEn = str(v.en, { field: 'role.en', max: 200 })
+  }
+  if (create || has('period')) {
+    const v = body.period ?? {}
+    out.periodVi = str(v.vi, { field: 'period.vi', required: true, max: 100 })
+    out.periodEn = str(v.en, { field: 'period.en', max: 100 })
+  }
+  if (create || has('bullets')) {
+    const v = body.bullets ?? {}
+    out.bulletsVi = strArray(v.vi, { field: 'bullets.vi' })
+    out.bulletsEn = strArray(v.en, { field: 'bullets.en' })
+  }
+  if (create || has('order')) out.order = int(body.order, { field: 'order' })
+
+  return out
 }

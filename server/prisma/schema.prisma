@@ -1,0 +1,73 @@
+// Prisma schema — PostgreSQL (thay cho MongoDB/Mongoose trước đây)
+//
+// Vercel Postgres cung cấp sẵn 2 biến môi trường:
+//   POSTGRES_PRISMA_URL      -> chuỗi kết nối qua connection pooler (dùng lúc runtime)
+//   POSTGRES_URL_NON_POOLING -> kết nối trực tiếp (dùng cho migrate/introspect)
+// Khi chạy local với Postgres thường, đặt cả 2 biến về cùng một URL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Project {
+  id          String   @id @default(uuid()) @db.Uuid
+  title       String   @db.VarChar(200)
+  slug        String   @unique @db.VarChar(200)
+  shortDesc   String   @map("short_desc") @db.VarChar(300)
+  description String   @default("")
+  techStack   String[] @default([]) @map("tech_stack")
+  thumbnail   String   @default("")
+  images      String[] @default([])
+  liveUrl     String   @default("") @map("live_url")
+  repoUrl     String   @default("") @map("repo_url")
+  featured    Boolean  @default(false)
+  order       Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([featured])
+  @@index([order, createdAt])
+  @@map("projects")
+}
+
+// Các field song ngữ (vi/en) trước đây là object lồng trong Mongo.
+// Ở Postgres tách thành cột phẳng; controller sẽ gộp lại thành
+// { vi, en } khi trả JSON để giữ nguyên hợp đồng API với frontend.
+model Experience {
+  id          String   @id @default(uuid()) @db.Uuid
+  company     String   @db.VarChar(200)
+  slug        String?  @unique @db.VarChar(200)
+  shortDescVi String   @default("") @map("short_desc_vi") @db.VarChar(300)
+  shortDescEn String   @default("") @map("short_desc_en") @db.VarChar(300)
+  roleVi      String   @map("role_vi") @db.VarChar(200)
+  roleEn      String   @default("") @map("role_en") @db.VarChar(200)
+  periodVi    String   @map("period_vi") @db.VarChar(100)
+  periodEn    String   @default("") @map("period_en") @db.VarChar(100)
+  bulletsVi   String[] @default([]) @map("bullets_vi")
+  bulletsEn   String[] @default([]) @map("bullets_en")
+  order       Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([order, createdAt])
+  @@map("experiences")
+}
+
+model Message {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(100)
+  email     String   @db.VarChar(150)
+  content   String   @db.VarChar(2000)
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@map("messages")
+}

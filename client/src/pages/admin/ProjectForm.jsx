@@ -56,7 +56,7 @@ export default function ProjectForm({ initial, onSave, onCancel, saving }) {
   return (
     <form onSubmit={submit} className="card space-y-4 p-6">
       <h2 className="font-display text-lg font-semibold text-white">
-        {initial?._id ? 'Sửa dự án' : 'Thêm dự án mới'}
+        {initial?.id ? 'Sửa dự án' : 'Thêm dự án mới'}
       </h2>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -74,7 +74,7 @@ export default function ProjectForm({ initial, onSave, onCancel, saving }) {
         onChange={set('description')}
       />
 
-      <input placeholder="Tech stack, phân tách bằng dấu phẩy: React, Node.js, MongoDB" className="input-dark" value={form.techStack} onChange={set('techStack')} />
+      <input placeholder="Tech stack, phân tách bằng dấu phẩy: React, Node.js, PostgreSQL" className="input-dark" value={form.techStack} onChange={set('techStack')} />
 
       <div className="grid gap-4 md:grid-cols-2">
         <input placeholder="URL ảnh thumbnail" className="input-dark" value={form.thumbnail} onChange={set('thumbnail')} />

@@ -55,8 +55,8 @@ export default function AdminDashboard() {
     setSaving(true)
     setError('')
     try {
-      if (editing?._id) {
-        await updateProject(editing._id, data)
+      if (editing?.id) {
+        await updateProject(editing.id, data)
       } else {
         await createProject(data)
       }
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
   const onDelete = async (p) => {
     if (!window.confirm(`Xóa dự án "${p.title}"?`)) return
     try {
-      await deleteProject(p._id)
+      await deleteProject(p.id)
       await load()
     } catch (err) {
       if (err?.response?.status === 401) return logout()
@@ -85,8 +85,8 @@ export default function AdminDashboard() {
     setSaving(true)
     setError('')
     try {
-      if (editingExp?._id) {
-        await updateExperience(editingExp._id, data)
+      if (editingExp?.id) {
+        await updateExperience(editingExp.id, data)
       } else {
         await createExperience(data)
       }
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
   const onDeleteExp = async (item) => {
     if (!window.confirm(`Xóa kinh nghiệm tại "${item.company}"?`)) return
     try {
-      await deleteExperience(item._id)
+      await deleteExperience(item.id)
       await load()
     } catch (err) {
       if (err?.response?.status === 401) return logout()
@@ -142,7 +142,7 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             {editing !== null ? (
               <ProjectForm
-                initial={editing?._id ? editing : null}
+                initial={editing?.id ? editing : null}
                 onSave={onSave}
                 onCancel={() => setEditing(null)}
                 saving={saving}
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
 
             <div className="space-y-3">
               {projects.map((p) => (
-                <div key={p._id} className="card flex items-center justify-between gap-4 p-4">
+                <div key={p.id} className="card flex items-center justify-between gap-4 p-4">
                   <div className="min-w-0">
                     <p className="truncate font-medium text-white">
                       {p.title}{' '}
@@ -182,7 +182,7 @@ export default function AdminDashboard() {
           <div className="space-y-6">
             {editingExp !== null ? (
               <ExperienceForm
-                initial={editingExp?._id ? editingExp : null}
+                initial={editingExp?.id ? editingExp : null}
                 onSave={onSaveExp}
                 onCancel={() => setEditingExp(null)}
                 saving={saving}
@@ -193,7 +193,7 @@ export default function AdminDashboard() {
 
             <div className="space-y-3">
               {experience.map((item) => (
-                <div key={item._id} className="card flex items-center justify-between gap-4 p-4">
+                <div key={item.id} className="card flex items-center justify-between gap-4 p-4">
                   <div className="min-w-0">
                     <p className="truncate font-medium text-white">{item.company}</p>
                     <p className="truncate text-sm text-slate-400">
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
         {tab === 'messages' && (
           <div className="space-y-3">
             {messages.map((m) => (
-              <div key={m._id} className="card p-4">
+              <div key={m.id} className="card p-4">
                 <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                   <p className="font-medium text-white">
                     {m.name} <span className="text-sm font-normal text-slate-400">&lt;{m.email}&gt;</span>

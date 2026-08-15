@@ -68,7 +68,7 @@ export default function ExperienceForm({ initial, onSave, onCancel, saving }) {
   return (
     <form onSubmit={submit} className="card space-y-4 p-6">
       <h2 className="font-display text-lg font-semibold text-white">
-        {initial?._id ? 'Sửa kinh nghiệm' : 'Thêm kinh nghiệm mới'}
+        {initial?.id ? 'Sửa kinh nghiệm' : 'Thêm kinh nghiệm mới'}
       </h2>
 
       <div className="grid gap-4 md:grid-cols-2">

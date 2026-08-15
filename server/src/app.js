@@ -23,7 +23,7 @@ app.use(async (req, res, next) => {
     await connectDB()
     next()
   } catch (err) {
-    console.error('Lỗi kết nối MongoDB:', err.message)
+    console.error('Lỗi kết nối PostgreSQL:', err.message)
     res.status(500).json({ message: 'Không kết nối được database' })
   }
 })

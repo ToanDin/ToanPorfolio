@@ -1,9 +1,7 @@
 // Chạy 1 lần để nạp dữ liệu mẫu: npm run seed
 import 'dotenv/config'
-import mongoose from 'mongoose'
-import connectDB from './config/db.js'
-import Project from './models/Project.js'
-import Experience from './models/Experience.js'
+import { prisma } from './config/db.js'
+import { toExperienceRow } from './utils/serialize.js'
 
 const sample = [
   {
@@ -25,8 +23,8 @@ const sample = [
     shortDesc: 'Chính trang web này — React Three Fiber, GSAP scroll animation, backend Node.js.',
     description:
       'Portfolio cá nhân với hiệu ứng 3D: nền galaxy particles phản ứng theo chuột, vật thể hero biến đổi theo scroll.\n' +
-      'Dữ liệu dự án quản lý qua REST API Node.js + MongoDB với trang admin riêng.',
-    techStack: ['React', 'Three.js', 'GSAP', 'Node.js', 'Express', 'MongoDB'],
+      'Dữ liệu dự án quản lý qua REST API Node.js + PostgreSQL (Prisma) với trang admin riêng.',
+    techStack: ['React', 'Three.js', 'GSAP', 'Node.js', 'Express', 'PostgreSQL', 'Prisma'],
     featured: false,
     order: 2,
   },
@@ -60,25 +58,37 @@ const sampleExperience = [
 ]
 
 async function run() {
-  await connectDB()
   for (const p of sample) {
-    await Project.updateOne({ slug: p.slug }, { $setOnInsert: p }, { upsert: true })
-    console.log(`✓ ${p.title}`)
+    // upsert theo slug — chạy lại nhiều lần không tạo bản ghi trùng
+    await prisma.project.upsert({
+      where: { slug: p.slug },
+      update: {},
+      create: p,
+    })
+    console.log(`\u2713 ${p.title}`)
   }
+
   for (const e of sampleExperience) {
-    const { slug, shortDesc, ...rest } = e
-    await Experience.updateOne(
-      { company: e.company },
-      { $set: { slug, shortDesc }, $setOnInsert: rest },
-      { upsert: true },
-    )
-    console.log(`✓ ${e.company}`)
+    const row = toExperienceRow(e)
+    const existing = await prisma.experience.findFirst({ where: { company: e.company } })
+    if (existing) {
+      // giữ nội dung cũ, chỉ bổ sung slug + mô tả ngắn như bản Mongo trước đây
+      await prisma.experience.update({
+        where: { id: existing.id },
+        data: { slug: row.slug, shortDescVi: row.shortDescVi, shortDescEn: row.shortDescEn },
+      })
+    } else {
+      await prisma.experience.create({ data: row })
+    }
+    console.log(`\u2713 ${e.company}`)
   }
-  await mongoose.disconnect()
+
   console.log('Seed xong!')
 }
 
-run().catch((err) => {
-  console.error(err)
-  process.exit(1)
-})
+run()
+  .catch((err) => {
+    console.error(err)
+    process.exitCode = 1
+  })
+  .finally(() => prisma.$disconnect())

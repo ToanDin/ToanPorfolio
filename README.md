@@ -6,7 +6,7 @@ dữ liệu dự án quản lý qua REST API với trang admin riêng.
 ```
 portfolio/
 ├── client/   # React + Vite + TailwindCSS + React Three Fiber + GSAP
-└── server/   # Node.js + Express + MongoDB (Mongoose) + JWT
+└── server/   # Node.js + Express + PostgreSQL (Prisma) + JWT
 ```
 
 ## 1. Chạy local lần đầu
@@ -17,35 +17,36 @@ Yêu cầu: Node.js >= 18 (khuyến nghị 20+).
 
 ```bash
 cd server
-npm install
+npm install                # postinstall tự chạy `prisma generate`
 copy .env.example .env     # Windows (macOS/Linux: cp .env.example .env)
 ```
 
 Mở `server/.env` và điền:
 
-1. `MONGODB_URI` — tạo cluster free tại https://www.mongodb.com/cloud/atlas
-   (Database → Connect → Drivers → copy chuỗi kết nối, thay user/password).
-   Nhớ vào **Network Access** thêm IP `0.0.0.0/0` (hoặc IP của bạn).
+1. `POSTGRES_PRISMA_URL` + `POSTGRES_URL_NON_POOLING` — chuỗi kết nối PostgreSQL.
+   - **Vercel Postgres**: Dashboard → Storage → Create Database → tab `.env.local`,
+     hoặc chạy `vercel env pull .env` để kéo về đủ biến.
+   - **Postgres local**: `docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=portfolio postgres:16`
+     rồi đặt cả 2 biến về `postgresql://postgres:postgres@localhost:5432/portfolio`.
 2. `JWT_SECRET` — chuỗi ngẫu nhiên dài, tạo bằng:
    `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 3. `ADMIN_EMAIL` / `ADMIN_PASSWORD` — tài khoản đăng nhập trang `/admin`.
 4. (Tuỳ chọn) SMTP_* để nhận email khi có người liên hệ — bỏ trống vẫn chạy bình thường,
    tin nhắn luôn được lưu DB và xem được trong admin.
 
-Rồi chạy:
+Tạo bảng rồi nạp dữ liệu mẫu:
 
 ```bash
-npm run seed   # nạp 2 dự án mẫu (VietFit + Portfolio 3D) — chạy 1 lần
-npm run dev    # API tại http://localhost:5000
+npm run db:migrate         # tạo bảng từ prisma/schema.prisma
+npm run seed               # nạp dữ liệu mẫu (chạy lại nhiều lần vẫn an toàn)
 ```
+
+Rồi chạy:
+
 
 ### Frontend (terminal thứ hai)
 
-```bash
-cd client
-npm install
-npm run dev    # mở http://localhost:3000
-```
+
 
 Dev không cần cấu hình gì thêm — Vite đã proxy `/api` sang `localhost:5000`.
 
@@ -68,8 +69,11 @@ Tại đây bạn thêm/sửa/xóa dự án (có nút cập nhật dữ liệu b
 
 1. Push code lên GitHub (repo này chứa cả `client/` và `server/`).
 2. Vercel → Add New Project → chọn repo → **Root Directory: `server`**.
-3. Thêm Environment Variables: `MONGODB_URI`, `JWT_SECRET`, `ADMIN_EMAIL`,
-   `ADMIN_PASSWORD`, `CLIENT_ORIGIN` (điền sau khi có domain frontend), và SMTP_* nếu dùng.
+3. Vào tab **Storage** → tạo Postgres database và Connect vào project này —
+   Vercel tự thêm `POSTGRES_PRISMA_URL` / `POSTGRES_URL_NON_POOLING`.
+   Thêm tiếp: `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
+   `CLIENT_ORIGIN` (điền sau khi có domain frontend), và SMTP_* nếu dùng.
+   Sau lần deploy đầu, chạy `npm run db:deploy` (với env production) để tạo bảng trên DB thật.
 4. Deploy → được URL dạng `https://portfolio-api-xxx.vercel.app`.
    Mở URL đó, thấy `{"ok":true}` là sống.
 
@@ -89,7 +93,13 @@ Tại đây bạn thêm/sửa/xóa dự án (có nút cập nhật dữ liệu b
 - **Bảo mật**: JWT hết hạn 1 ngày; rate-limit login (10 lần/15 phút) và contact
   (5 lần/15 phút); CORS production chỉ cho phép `CLIENT_ORIGIN`; không có link tới
   `/admin` từ UI công khai.
-- **Serverless**: kết nối MongoDB được cache giữa các invocation (`src/config/db.js`).
+- **Serverless**: PrismaClient được cache giữa các invocation (`src/config/db.js`) và
+  chạy qua connection pooler của Vercel Postgres (`POSTGRES_PRISMA_URL`) để không cạn
+  connection; `prisma migrate` dùng `POSTGRES_URL_NON_POOLING`.
+- **Song ngữ**: bảng `experiences` lưu cột phẳng `*_vi` / `*_en`; API gộp lại thành
+  `{ vi, en }` (`src/utils/serialize.js`) nên frontend không đổi gì.
+- **Validate**: Prisma không validate ở tầng ứng dụng như Mongoose, nên ràng buộc
+  required / maxlength / regex slug nằm ở `src/utils/validate.js`.
 
 ## 5. Ý tưởng nâng cấp sau
 

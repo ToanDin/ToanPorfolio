@@ -1,23 +1,31 @@
-import mongoose from 'mongoose'
+import { PrismaClient } from '@prisma/client'
 
 /**
- * Kết nối MongoDB, cache connection giữa các invocation
- * (quan trọng trên Vercel serverless — tránh mở kết nối mới mỗi request).
+ * PrismaClient dùng chung, cache giữa các invocation.
+ * Quan trọng trên Vercel serverless: mỗi lần hot-reload / mỗi function instance
+ * mà tạo client mới sẽ làm cạn connection pool của Postgres.
  */
-let cached = globalThis._mongooseCached
-if (!cached) {
-  cached = globalThis._mongooseCached = { conn: null, promise: null }
+const globalForPrisma = globalThis
+
+export const prisma =
+  globalForPrisma._prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === 'production' ? ['error'] : ['error', 'warn'],
+  })
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma._prisma = prisma
 }
 
-export default async function connectDB() {
-  if (cached.conn) return cached.conn
-
-  if (!cached.promise) {
-    const uri = process.env.MONGODB_URI
-    if (!uri) throw new Error('Thiếu biến môi trường MONGODB_URI')
-    cached.promise = mongoose.connect(uri, { bufferCommands: false })
+/** Đảm bảo đã kết nối được Postgres (gọi ở middleware của app). */
+let connectPromise = null
+export default function connectDB() {
+  if (!process.env.POSTGRES_PRISMA_URL) {
+    return Promise.reject(new Error('Thiếu biến môi trường POSTGRES_PRISMA_URL'))
   }
-
-  cached.conn = await cached.promise
-  return cached.conn
+  connectPromise ??= prisma.$connect().catch((err) => {
+    connectPromise = null // cho phép thử lại ở request sau
+    throw err
+  })
+  return connectPromise
 }

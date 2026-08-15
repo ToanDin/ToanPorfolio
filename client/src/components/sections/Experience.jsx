@@ -49,9 +49,9 @@ export default function Experience() {
           {items.map((job, i) => {
             const desc = pick(job.shortDesc, lang) || pickList(job.bullets, lang)[0] || ''
             return (
-              <Reveal key={job._id ?? job.company} delay={(i % 2) * 100} className="h-full">
+              <Reveal key={job.id ?? job.company} delay={(i % 2) * 100} className="h-full">
                 <Link
-                  to={`/experience/${job.slug || job._id}`}
+                  to={`/experience/${job.slug || job.id}`}
                   className="card group flex h-full flex-col p-6 transition hover:-translate-y-1 hover:border-accent/40 hover:shadow-[0_8px_40px_var(--glow)] md:p-8"
                 >
                   {/* Viền gradient mảnh trên đầu thẻ */}

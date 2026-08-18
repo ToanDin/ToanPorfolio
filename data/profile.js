@@ -18,18 +18,20 @@ export const content = {
     role: 'Fullstack Developer',
     tagline: 'Tôi xây những sản phẩm web đẹp, nhanh và hữu ích.',
     about: [
-      'Mình bắt đầu hành trình lập trình với web frontend, rồi dần mở rộng sang backend để có thể tự tay xây một sản phẩm hoàn chỉnh từ ý tưởng đến deploy.',
-      'Dự án tâm đắc nhất của mình là VietFit — một PWA theo dõi calo và dinh dưỡng dành riêng cho người Việt, tích hợp AI để nhận diện món ăn.',
-      'Ngoài code, mình thích tìm hiểu về product design và trải nghiệm người dùng — vì một sản phẩm tốt không chỉ chạy đúng mà còn phải dùng sướng.',
+     "Chào bạn, mình là Toàn — một kỹ sư phần mềm đến từ TP.HCM, tốt nghiệp ngành Kỹ thuật Phần mềm tại Đại học Thủ Dầu Một. Mình chuyên phát triển các ứng dụng web full-stack sử dụng React, Next.js, Node.js và PostgreSQL.",
+"Điều cuốn hút mình ở công việc này chính là toàn bộ hành trình tạo ra một sản phẩm: từ việc thấu hiểu nhu cầu thực tế của người dùng, thiết kế giao diện tinh tế, cho đến việc tối ưu hóa để sản phẩm vận hành nhanh chóng, ổn định và tạo được niềm tin nơi người dùng.",
+"Mình đặc biệt quan tâm đến hiệu năng và trải nghiệm người dùng — chú trọng vào những chi tiết nhỏ như phản hồi tức thì hay các tương tác mượt mà để mang lại cảm giác dễ chịu khi sử dụng phần mềm. Trước khi chuyển sang làm lập trình viên toàn thời gian, mình từng là Thực tập sinh Phân tích Nghiệp vụ (Business Analyst), tư vấn giải pháp website cho các doanh nghiệp nhỏ và trực tiếp triển khai trọn gói ba dự án trong số đó. Kinh nghiệm này đã rèn luyện cho mình kỹ năng lắng nghe kỹ lưỡng, giao tiếp rõ ràng và tư duy về khía cạnh kinh doanh đằng sau những dòng code — những kỹ năng mà mình vẫn luôn áp dụng mỗi ngày trong công việc hiện tại.",
+"Hiện tại, mình đang là Thực tập sinh Kỹ sư Phần mềm tại MarketDash. Ngoài giờ làm việc, mình thường phát triển các dự án cá nhân để thử nghiệm những ý tưởng mới liên quan đến AI, tối ưu hiệu năng và thiết kế giao diện đẹp mắt. Mình luôn sẵn sàng đón nhận những thử thách mới và kết nối với những người thú vị — đừng ngần ngại liên hệ với mình nhé."
     ],
   },
   en: {
     role: 'Fullstack Developer',
     tagline: 'I build web products that are beautiful, fast and useful.',
     about: [
-      'I started my programming journey with web frontend, then gradually expanded to backend so I could build a complete product on my own — from idea to deployment.',
-      'The project I am most proud of is VietFit — a calorie & nutrition tracking PWA made for Vietnamese users, with AI-powered food recognition.',
-      'Beyond code, I enjoy learning about product design and user experience — a good product should not only work correctly, it should feel great to use.',
+      "Hi, Im Toàn — a software engineer from Ho Chi Minh City with a Bachelor's degree in Software Engineering from Thu Dau Mot Universityy.I build full-stack web applications with React, Next.js, Node.js, and PostgreSQL.",
+      "What draws me to this work is the whole journey of a product: understanding what someone actually needs, designing something clean, and then making it fast and reliable enough that people trust it.",
+      "I'm particularly interested in performance and user experience — the small details like instant feedback and smooth interactions that make software feel good to use. Before writing code full-time, I worked as a Business Analyst Intern, consulting small businesses on their websites and delivering three of them end-to-end. That experience taught me to listen carefully, communicate clearly, and think about the business behind the code — skills I still rely on every day as a developer.", 
+      "Right now I'm a Software Engineer Intern at MarketDash, and in my free time I build my own projects to explore ideas around AI, performance, and beautiful interfaces. I'm always open to new challenges and interesting people — feel free to reach out."
     ],
   },
 }

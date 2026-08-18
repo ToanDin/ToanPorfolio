@@ -11,9 +11,9 @@ export const fallbackProjects = [
       'VietFit giúp người Việt theo dõi calo và dinh dưỡng hằng ngày với cơ sở dữ liệu món ăn Việt Nam. ' +
       'Ứng dụng tích hợp Gemini AI để nhận diện món ăn, đăng nhập bằng Firebase Auth và đồng bộ dữ liệu qua Firestore.',
     techStack: ['React', 'Vite', 'TailwindCSS', 'Firebase', 'Node.js', 'Gemini AI'],
-    thumbnail: '',
+    thumbnail: '/projects/vietfit.webp',
     images: [],
-    liveUrl: 'https://viet-fit-bjsn.vercel.app',
+    liveUrl: 'https://viet-fit-lemon.vercel.app',
     repoUrl: '',
     featured: true,
     order: 1,

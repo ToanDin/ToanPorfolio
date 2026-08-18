@@ -14,6 +14,7 @@ const sample = [
       'Ứng dụng tích hợp Gemini AI để nhận diện món ăn, đăng nhập bằng Firebase Auth và đồng bộ dữ liệu qua Firestore.\n' +
       'Backend Node.js/Express đóng vai trò proxy bảo mật cho Gemini API, deploy trên Vercel.',
     techStack: ['React', 'Vite', 'TailwindCSS', 'Firebase', 'Node.js', 'Express', 'Gemini AI'],
+    thumbnail: '/projects/vietfit.webp',
     liveUrl: 'https://viet-fit-bjsn.vercel.app',
     featured: true,
     order: 1,

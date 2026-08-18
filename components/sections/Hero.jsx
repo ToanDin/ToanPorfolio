@@ -2,6 +2,7 @@
 
 import { profile, content } from '@/data/profile.js'
 import { useLang } from '@/lib/i18n.jsx'
+import TypingText from '@/components/ui/TypingText.jsx'
 
 export default function Hero() {
   const { t, lang } = useLang()
@@ -12,7 +13,7 @@ export default function Hero() {
         <div className="max-w-2xl">
           <p className="mb-4 font-medium text-accent2">{t('hero.greeting')}</p>
           <h1 className="font-display text-5xl font-bold leading-tight md:text-7xl">
-            <span className="grad-text">{profile.name}</span>
+            <TypingText text={profile.name} className="grad-text" />
           </h1>
           <h2 className="mt-3 font-display text-2xl font-semibold text-ink-soft md:text-3xl">
             {c.role}

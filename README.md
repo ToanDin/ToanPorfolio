@@ -20,7 +20,7 @@ portfolio/
 
 ## 1. Chạy local lần đầu
 
-Yêu cầu: Node.js >= 18.17 (khuyến nghị 20+).
+Yêu cầu: Node.js >= 20 (Web Crypto toàn cục dùng cho JWT; Node 18 đã hết hạn hỗ trợ).
 
 ```bash
 npm install                # postinstall tự chạy `prisma generate`
@@ -36,10 +36,16 @@ Mở `.env` và điền:
      rồi đặt cả 2 biến về `postgresql://postgres:postgres@localhost:5432/portfolio`.
 2. `JWT_SECRET` — chuỗi ngẫu nhiên dài:
    `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-3. `ADMIN_EMAIL` / `ADMIN_PASSWORD` — tài khoản đăng nhập trang `/admin`.
-4. `NEXT_PUBLIC_EMAILJS_*` — form liên hệ gửi email qua EmailJS (copy từ client/.env cũ,
-   đổi tiền tố `VITE_` thành `NEXT_PUBLIC_`).
-5. (Tuỳ chọn) `SMTP_*` — nhận thêm email báo qua SMTP khi có tin nhắn mới.
+3. `ADMIN_EMAIL` / `ADMIN_PASSWORD_HASH` — tài khoản đăng nhập trang `/admin`.
+   Tạo hash: `npm run hash-password -- 'mat-khau-cua-ban'` rồi dán kết quả vào `.env`
+   (mật khẩu không lưu dạng thô ở bất kỳ đâu). `ADMIN_PASSWORD` thô vẫn được chấp nhận
+   để tương thích, nhưng sẽ cảnh báo trong log production.
+4. `NEXT_PUBLIC_SITE_URL` — URL công khai (dùng cho sitemap/canonical/OG). Trên Vercel có thể bỏ trống.
+5. (Khuyến nghị khi deploy serverless) `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` —
+   rate-limit dùng chung giữa các instance (Upstash Redis free). Không có → dùng bộ đếm trong bộ nhớ.
+6. (Tuỳ chọn) `NEXT_PUBLIC_EMAILJS_*` — form liên hệ gửi thêm email qua EmailJS.
+   Nhớ bật **Allowed domains** trong EmailJS vì public key nằm trong bundle.
+7. (Tuỳ chọn) `SMTP_*` — nhận thêm email báo qua SMTP khi có tin nhắn mới.
 
 Tạo bảng, nạp dữ liệu mẫu rồi chạy:
 
@@ -51,8 +57,10 @@ npm run dev                # http://localhost:3000
 
 ### Trang admin
 
-Vào `http://localhost:3000/admin`, đăng nhập bằng `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
-Thêm/sửa/xóa dự án & kinh nghiệm, xem tin nhắn liên hệ.
+Vào `http://localhost:3000/admin`, đăng nhập bằng `ADMIN_EMAIL` + mật khẩu đã băm.
+Thêm/sửa/xóa dự án & kinh nghiệm, xem/đánh dấu đã đọc/xóa tin nhắn liên hệ.
+Phiên đăng nhập là cookie `httpOnly` (1 ngày); `middleware.js` chặn `/admin/dashboard`
+ngay tại edge nếu chưa đăng nhập.
 
 ## 2. Đổi nội dung thành CỦA BẠN
 
@@ -69,25 +77,39 @@ Thêm/sửa/xóa dự án & kinh nghiệm, xem tin nhắn liên hệ.
    Vercel tự nhận diện Next.js.
 3. Tab **Storage** → tạo Postgres database → Connect vào project —
    `DATABASE_URL` / `DATABASE_URL_UNPOOLED` được thêm tự động.
-4. Environment Variables: thêm `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
-   `NEXT_PUBLIC_EMAILJS_*` (và `SMTP_*` nếu dùng).
-5. Deploy. Sau lần deploy đầu, tạo bảng trên DB production:
-   `vercel env pull .env.production && npx prisma migrate deploy` (hoặc chạy
-   `npm run db:deploy` với env production), rồi seed nếu muốn.
+4. Environment Variables: thêm `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH`,
+   `NEXT_PUBLIC_SITE_URL`, `UPSTASH_REDIS_REST_*` (khuyến nghị), `NEXT_PUBLIC_EMAILJS_*`
+   và `SMTP_*` nếu dùng.
+5. Migration **không** chạy trong `npm run build` (để preview build không đụng DB và
+   không fail khi DB chập chờn). Chọn một trong hai:
+   - Chạy tay sau mỗi lần đổi schema: `vercel env pull .env.production && npm run db:deploy`
+   - Hoặc trong Vercel → Settings → Build Command đặt `npm run vercel-build`
+     (= `prisma migrate deploy && next build`) **chỉ cho Production**.
+6. Deploy, rồi seed nếu muốn (`npm run seed` với env production).
 
 Không còn CORS, không còn `VITE_API_URL` — frontend và API cùng một origin.
 
 ## 4. Ghi chú kỹ thuật
 
-- **SSR + SEO**: `/projects/[slug]` và `/experience/[slug]` đọc DB ngay trên server,
-  mỗi trang có `generateMetadata` riêng (title/description/OG image).
+- **SSR + SEO**: trang chủ, `/projects/[slug]` và `/experience/[slug]` đọc DB ngay trên
+  server (`lib/server/data.js`, bọc React `cache()`), mỗi trang có `generateMetadata`
+  riêng (title/description/OG image, canonical).
 - **3D**: `next/dynamic` với `ssr: false` cho Canvas (WebGL chỉ chạy trình duyệt);
   mobile tự giảm số hạt (1600 vs 4500), tắt antialias, hạ DPR; tôn trọng
   `prefers-reduced-motion`.
 - **Theme/i18n**: script inline trong `layout.jsx` đặt `data-theme` trước khi React
   hydrate (không nháy màn hình); state khởi tạo SSR-safe rồi đồng bộ localStorage.
-- **Bảo mật**: JWT hết hạn 1 ngày; rate-limit login (10 lần/15 phút) và contact
-  (5 lần/15 phút) theo IP; validate đầu vào ở `lib/server/validate.js`.
+- **Bảo mật**: mật khẩu admin băm scrypt (`lib/server/password.js`); JWT HS256 tự
+  ký/verify bằng Web Crypto (`lib/server/jwt.js`, chạy cả edge) lưu trong cookie
+  `httpOnly` + `SameSite=Strict`, hết hạn 1 ngày; kiểm tra Origin cho request ghi;
+  `middleware.js` chặn trang admin; rate-limit login (10 lần/15 phút) và contact
+  (5 lần/15 phút) theo IP thật (`x-real-ip`, không tin `x-forwarded-for`), dùng Upstash
+  Redis nếu cấu hình; honeypot + kiểm tra thời gian điền form liên hệ; validate URL
+  http(s) cho link/ảnh dự án; security headers (CSP, HSTS, X-Frame-Options...) trong
+  `next.config.mjs`.
+- **Cache/ISR**: trang chủ và trang chi tiết render sẵn (`revalidate = 60`), API admin
+  gọi `revalidatePath` khi thêm/sửa/xoá nên thay đổi hiện ngay; slug không tồn tại trả
+  404 thật (`notFound()`); `robots.txt`, `sitemap.xml`, ảnh OG mặc định tự sinh.
 - **Serverless**: PrismaClient cache trên `globalThis`, chạy qua connection pooler
   (`DATABASE_URL`); migrate dùng `DATABASE_URL_UNPOOLED`.
 - **Song ngữ**: bảng `experiences` lưu cột phẳng `*_vi`/`*_en`, API gộp thành `{ vi, en }`.

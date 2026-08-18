@@ -13,7 +13,7 @@ export const fallbackProjects = [
     techStack: ['React', 'Vite', 'TailwindCSS', 'Firebase', 'Node.js', 'Gemini AI'],
     thumbnail: '',
     images: [],
-    liveUrl: 'https://viet-fit-lemon.vercel.app/',
+    liveUrl: 'https://viet-fit-bjsn.vercel.app',
     repoUrl: '',
     featured: true,
     order: 1,

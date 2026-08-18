@@ -17,11 +17,15 @@ export default function AdminLogin() {
     setError('')
     setLoading(true)
     try {
-      const { token } = await adminLogin(form)
-      localStorage.setItem('admin_token', token)
-      router.push('/admin/dashboard')
-    } catch {
-      setError('Email hoặc mật khẩu không đúng.')
+      await adminLogin(form) // cookie httpOnly được server đặt
+      router.replace('/admin/dashboard')
+      router.refresh()
+    } catch (err) {
+      setError(
+        err?.response?.status === 429
+          ? 'Quá nhiều lần thử — vui lòng đợi ít phút.'
+          : err?.response?.data?.message ?? 'Email hoặc mật khẩu không đúng.',
+      )
     } finally {
       setLoading(false)
     }
@@ -29,28 +33,36 @@ export default function AdminLogin() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
-      <form onSubmit={onSubmit} className="card w-full max-w-sm space-y-4 p-8">
-        <h1 className="font-display text-xl font-bold text-white">Admin</h1>
-        <input
-          required
-          type="email"
-          placeholder="Email"
-          className="input-dark"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-        <input
-          required
-          type="password"
-          placeholder="Mật khẩu"
-          className="input-dark"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
+      <form onSubmit={onSubmit} className="card w-full max-w-sm space-y-4 p-8" aria-labelledby="admin-login-title">
+        <h1 id="admin-login-title" className="font-display text-xl font-bold text-white">Admin</h1>
+        <label className="block">
+          <span className="sr-only">Email</span>
+          <input
+            required
+            type="email"
+            autoComplete="username"
+            placeholder="Email"
+            className="input-dark"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+        </label>
+        <label className="block">
+          <span className="sr-only">Mật khẩu</span>
+          <input
+            required
+            type="password"
+            autoComplete="current-password"
+            placeholder="Mật khẩu"
+            className="input-dark"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+        </label>
         <button type="submit" disabled={loading} className="btn-primary w-full justify-center disabled:opacity-60">
           {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
         </button>
-        {error && <p className="text-sm text-rose-400">{error}</p>}
+        <p role="alert" aria-live="polite" className="min-h-[1.25rem] text-sm text-rose-400">{error}</p>
       </form>
     </div>
   )

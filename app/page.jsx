@@ -1,39 +1,11 @@
-'use client'
+import HomeClient from '@/components/HomeClient.jsx'
+import { getProjects, getExperienceList } from '@/lib/server/data.js'
 
-import dynamic from 'next/dynamic'
-import Navbar from '@/components/ui/Navbar.jsx'
-import Footer from '@/components/ui/Footer.jsx'
-import ScrollExtras from '@/components/ui/ScrollExtras.jsx'
-import Hero from '@/components/sections/Hero.jsx'
-import About from '@/components/sections/About.jsx'
-import Experience from '@/components/sections/Experience.jsx'
-import Skills from '@/components/sections/Skills.jsx'
-import Projects from '@/components/sections/Projects.jsx'
-import Contact from '@/components/sections/Contact.jsx'
-import { useTheme } from '@/lib/theme.jsx'
+// ISR: trang chủ được render sẵn trên server (SEO: dự án/kinh nghiệm có trong HTML),
+// làm mới mỗi 60s hoặc ngay khi admin sửa (revalidatePath trong API).
+export const revalidate = 60
 
-// Phần 3D chỉ chạy phía trình duyệt (WebGL) — nội dung chữ hiện ngay, Three.js tải sau
-const Scene = dynamic(() => import('@/components/canvas/Scene.jsx'), { ssr: false })
-
-export default function Home() {
-  const { theme } = useTheme()
-  return (
-    <>
-      <Scene theme={theme} />
-
-      <div className="content-layer">
-        <ScrollExtras />
-        <Navbar />
-        <main>
-          <Hero />
-          <About />
-          <Experience />
-          <Skills />
-          <Projects />
-          <Contact />
-        </main>
-        <Footer />
-      </div>
-    </>
-  )
+export default async function Home() {
+  const [projects, experience] = await Promise.all([getProjects(), getExperienceList()])
+  return <HomeClient projects={projects} experience={experience} />
 }

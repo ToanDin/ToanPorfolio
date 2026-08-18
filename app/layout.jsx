@@ -1,5 +1,6 @@
 import { Inter, Sora } from 'next/font/google'
 import Providers from './providers.jsx'
+import { SITE_URL } from '@/lib/site.js'
 import './globals.css'
 
 const inter = Inter({
@@ -19,14 +20,24 @@ const sora = Sora({
 })
 
 export const metadata = {
-  title: 'TOAN DINH | Fullstack Developer',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'TOAN DINH | Fullstack Developer',
+    template: '%s',
+  },
   description:
     'Portfolio cá nhân — Fullstack Developer. React, Next.js, Node.js, và những sản phẩm tôi đã xây dựng.',
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Portfolio | Fullstack Developer',
+    title: 'TOAN DINH | Fullstack Developer',
     description: 'Khám phá các dự án và kỹ năng của tôi — React, Next.js, Three.js.',
     type: 'website',
+    url: '/',
+    siteName: 'TOAN DINH',
+    locale: 'vi_VN',
   },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true },
   icons: { icon: '/favicon.svg' },
 }
 
@@ -44,8 +55,13 @@ export default function RootLayout({ children }) {
     <html lang="vi" suppressHydrationWarning className={`${inter.variable} ${sora.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+        {/* Không có JS (crawler cũ, JS lỗi): vẫn hiện nội dung thay vì opacity-0 của Reveal */}
+        <noscript>
+          <style>{`.reveal{opacity:1!important;transform:none!important}`}</style>
+        </noscript>
       </head>
       <body>
+        <a href="#main" className="skip-link">Bỏ qua điều hướng</a>
         <Providers>{children}</Providers>
       </body>
     </html>

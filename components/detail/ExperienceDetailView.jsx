@@ -15,7 +15,7 @@ export default function ExperienceDetailView({ item }) {
     <div className="content-layer min-h-screen">
       <ScrollExtras />
       <Navbar />
-      <main className="section-shell pt-32">
+      <main id="main" className="section-shell pt-32">
         {!item ? (
           <div className="text-center">
             <h1 className="font-display text-2xl text-ink">{t('detail.expNotFound')}</h1>

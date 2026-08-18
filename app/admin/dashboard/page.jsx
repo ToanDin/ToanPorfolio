@@ -10,6 +10,9 @@ import {
   updateProject,
   deleteProject,
   fetchMessages,
+  markMessageRead,
+  deleteMessage,
+  adminLogout,
   fetchExperience,
   createExperience,
   updateExperience,
@@ -29,9 +32,14 @@ export default function AdminDashboard() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
-  const logout = () => {
-    localStorage.removeItem('admin_token')
-    router.push('/admin')
+  const logout = async () => {
+    try {
+      await adminLogout()
+    } catch {
+      /* cookie có thể đã hết hạn — vẫn quay về login */
+    }
+    router.replace('/admin')
+    router.refresh()
   }
 
   const load = async () => {
@@ -48,10 +56,31 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    if (!localStorage.getItem('admin_token')) return router.push('/admin')
+    // middleware.js đã chặn người chưa đăng nhập; API trả 401 nếu phiên hết hạn
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const onToggleRead = async (m) => {
+    try {
+      await markMessageRead(m.id, !m.read)
+      setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, read: !m.read } : x)))
+    } catch (err) {
+      if (err?.response?.status === 401) return logout()
+      setError('Cập nhật thất bại.')
+    }
+  }
+
+  const onDeleteMessage = async (m) => {
+    if (!window.confirm(`Xóa tin nhắn của "${m.name}"?`)) return
+    try {
+      await deleteMessage(m.id)
+      setMessages((prev) => prev.filter((x) => x.id !== m.id))
+    } catch (err) {
+      if (err?.response?.status === 401) return logout()
+      setError('Xóa thất bại.')
+    }
+  }
 
   const onSave = async (data) => {
     setSaving(true)
@@ -135,7 +164,7 @@ export default function AdminDashboard() {
         <div className="mb-6 flex flex-wrap gap-2">
           {tabBtn('projects', `Dự án (${projects.length})`)}
           {tabBtn('experience', `Kinh nghiệm (${experience.length})`)}
-          {tabBtn('messages', `Tin nhắn (${messages.length})`)}
+          {tabBtn('messages', `Tin nhắn (${messages.filter((m) => !m.read).length}/${messages.length})`)}
         </div>
 
         {error && <p className="mb-4 text-sm text-rose-400">{error}</p>}
@@ -222,9 +251,10 @@ export default function AdminDashboard() {
         {tab === 'messages' && (
           <div className="space-y-3">
             {messages.map((m) => (
-              <div key={m.id} className="card p-4">
+              <div key={m.id} className={`card p-4 ${m.read ? 'opacity-70' : ''}`}>
                 <div className="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                   <p className="font-medium text-white">
+                    {!m.read && <span className="mr-2 inline-block h-2 w-2 rounded-full bg-accent2" aria-label="Chưa đọc" />}
                     {m.name} <span className="text-sm font-normal text-slate-400">&lt;{m.email}&gt;</span>
                   </p>
                   <p className="text-xs text-slate-500">
@@ -232,6 +262,17 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <p className="whitespace-pre-wrap text-sm text-slate-300">{m.content}</p>
+                <div className="mt-3 flex gap-2">
+                  <a href={`mailto:${m.email}`} className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-200 hover:bg-white/10">
+                    Trả lời
+                  </a>
+                  <button onClick={() => onToggleRead(m)} className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-200 hover:bg-white/10">
+                    {m.read ? 'Đánh dấu chưa đọc' : 'Đã đọc'}
+                  </button>
+                  <button onClick={() => onDeleteMessage(m)} className="rounded-lg bg-rose-500/10 px-3 py-1.5 text-sm text-rose-300 hover:bg-rose-500/20">
+                    Xóa
+                  </button>
+                </div>
               </div>
             ))}
             {messages.length === 0 && <p className="text-sm text-slate-500">Chưa có tin nhắn nào.</p>}

@@ -95,7 +95,7 @@ body {
     @apply rounded-2xl border border-line bg-panel/80 backdrop-blur;
   }
   .input-dark {
-    @apply w-full rounded-xl border border-line bg-night/60 px-4 py-3 text-ink outline-none transition placeholder:text-ink-mute focus:border-accent;
+    @apply w-full rounded-xl border border-line bg-night/60 px-4 py-3 text-ink transition placeholder:text-ink-mute focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60;
   }
   .chip {
     @apply rounded-full border border-line bg-surface px-3 py-1 text-xs text-ink-soft;
@@ -127,4 +127,26 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* A11y: link "bỏ qua điều hướng" chỉ hiện khi focus bằng bàn phím */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -100px;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background: rgb(var(--c-accent));
+  color: #fff;
+  transition: top 0.15s;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+/* Vòng focus rõ ràng cho nút/link khi dùng bàn phím */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid rgb(var(--c-accent));
+  outline-offset: 2px;
 }

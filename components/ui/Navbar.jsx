@@ -52,6 +52,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  // Esc đóng menu mobile
+  useEffect(() => {
+    if (!open) return
+    const onKey = (e) => e.key === 'Escape' && setOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [open])
+
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all ${
@@ -88,7 +96,13 @@ export default function Navbar() {
         <div className="flex items-center gap-2 md:hidden">
           <ThemeToggle />
           <LangToggle />
-          <button className="text-ink" onClick={() => setOpen(!open)} aria-label="Menu">
+          <button
+            className="text-ink"
+            onClick={() => setOpen(!open)}
+            aria-label={open ? 'Đóng menu' : 'Mở menu'}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+          >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {open ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
             </svg>
@@ -98,7 +112,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {open && (
-        <ul className="space-y-1 border-t border-line bg-night/95 px-6 pb-4 pt-2 backdrop-blur md:hidden">
+        <ul id="mobile-menu" className="space-y-1 border-t border-line bg-night/95 px-6 pb-4 pt-2 backdrop-blur md:hidden">
           {links.map((l) => (
             <li key={l.href}>
               <a

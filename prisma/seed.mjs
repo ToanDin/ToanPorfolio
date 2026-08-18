@@ -61,15 +61,18 @@ const sampleExperience = [
 
 async function run() {
   for (const p of sample) {
-    // upsert theo slug — chạy lại nhiều lần không tạo bản ghi trùng
-    await prisma.project.upsert({ where: { slug: p.slug }, update: {}, create: p })
+    // upsert theo slug — chạy lại nhiều lần không tạo bản ghi trùng, và cập nhật nội dung mẫu
+    await prisma.project.upsert({ where: { slug: p.slug }, update: p, create: p })
     console.log(`✓ ${p.title}`)
   }
 
   for (const e of sampleExperience) {
-    const existing = await prisma.experience.findFirst({ where: { company: e.company } })
+    // Tìm theo slug (unique); dữ liệu cũ chưa có slug thì tìm theo company
+    const existing =
+      (await prisma.experience.findUnique({ where: { slug: e.slug } })) ??
+      (await prisma.experience.findFirst({ where: { company: e.company } }))
     if (existing) {
-      await prisma.experience.update({ where: { id: existing.id }, data: { slug: e.slug } })
+      await prisma.experience.update({ where: { id: existing.id }, data: e })
     } else {
       await prisma.experience.create({ data: e })
     }

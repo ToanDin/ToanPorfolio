@@ -3,6 +3,7 @@ import { prisma } from '@/lib/server/prisma.js'
 import { getAdmin, unauthorized } from '@/lib/server/auth.js'
 import { pickProjectFields } from '@/lib/server/fields.js'
 import { friendlyError } from '@/lib/server/validate.js'
+import { revalidateContent } from '@/lib/server/revalidate.js'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,16 +13,22 @@ const ORDER_BY = [{ order: 'asc' }, { createdAt: 'desc' }]
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const where = searchParams.get('featured') === 'true' ? { featured: true } : {}
-  const projects = await prisma.project.findMany({ where, orderBy: ORDER_BY })
-  return NextResponse.json(projects)
+  try {
+    const projects = await prisma.project.findMany({ where, orderBy: ORDER_BY })
+    return NextResponse.json(projects)
+  } catch (err) {
+    console.error('[api/projects] GET:', err.message)
+    return NextResponse.json({ message: 'Không đọc được dữ liệu' }, { status: 500 })
+  }
 }
 
 /** POST /api/projects — admin */
 export async function POST(request) {
-  if (!getAdmin(request)) return unauthorized()
+  if (!(await getAdmin(request))) return unauthorized()
   try {
     const body = await request.json()
     const project = await prisma.project.create({ data: pickProjectFields(body, { create: true }) })
+    revalidateContent(project.slug)
     return NextResponse.json(project, { status: 201 })
   } catch (err) {
     return NextResponse.json({ message: friendlyError(err) }, { status: 400 })

@@ -37,6 +37,7 @@ const dict = {
       sending: 'Đang gửi...',
       ok: 'Đã gửi! Tôi sẽ phản hồi sớm nhất có thể.',
       error: 'Gửi không thành công. Bạn có thể email trực tiếp:',
+      tooMany: 'Bạn gửi hơi nhiều — vui lòng thử lại sau ít phút, hoặc email trực tiếp:',
     },
     detail: {
       all: '← Tất cả dự án',
@@ -84,6 +85,7 @@ const dict = {
       sending: 'Sending...',
       ok: 'Sent! I will get back to you as soon as possible.',
       error: 'Something went wrong. You can email me directly:',
+      tooMany: 'Too many messages — please try again in a few minutes, or email me directly:',
     },
     detail: {
       all: '← All projects',

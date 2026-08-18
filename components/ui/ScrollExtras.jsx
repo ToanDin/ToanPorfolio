@@ -8,16 +8,23 @@ export default function ScrollExtras() {
   const [showTop, setShowTop] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0
+    const update = () => {
+      raf = 0
       const el = document.documentElement
       const max = el.scrollHeight - el.clientHeight
       setProgress(max > 0 ? window.scrollY / max : 0)
       setShowTop(window.scrollY > 600)
     }
-    onScroll()
+    // Gom sự kiện scroll vào 1 frame (rAF) — không setState mỗi pixel cuộn
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update)
+    }
+    update()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
+      if (raf) cancelAnimationFrame(raf)
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }

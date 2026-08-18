@@ -14,7 +14,7 @@ export default function ProjectDetailView({ project }) {
     <div className="content-layer min-h-screen">
       <ScrollExtras />
       <Navbar />
-      <main className="section-shell pt-32">
+      <main id="main" className="section-shell pt-32">
         {!project ? (
           <div className="text-center">
             <h1 className="font-display text-2xl text-ink">{t('detail.notFound')}</h1>
@@ -53,6 +53,8 @@ export default function ProjectDetailView({ project }) {
               <img
                 src={project.thumbnail}
                 alt={project.title}
+                loading="lazy"
+                decoding="async"
                 className="mt-10 w-full rounded-2xl border border-line"
               />
             )}
@@ -66,7 +68,7 @@ export default function ProjectDetailView({ project }) {
             {(project.images ?? []).length > 0 && (
               <div className="mt-10 grid gap-4 md:grid-cols-2">
                 {project.images.map((img, i) => (
-                  <img key={i} src={img} alt={`${project.title} ${i + 1}`} loading="lazy" className="rounded-xl border border-line" />
+                  <img key={i} src={img} alt={`${project.title} ${i + 1}`} loading="lazy" decoding="async" className="rounded-xl border border-line" />
                 ))}
               </div>
             )}

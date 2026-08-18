@@ -10,11 +10,13 @@ import useIsMobile from '@/hooks/useIsMobile.js'
  * Canvas 3D cố định phủ toàn trang (z-index dưới nội dung).
  * - Mobile: giảm số hạt, tắt antialias, DPR thấp hơn.
  * - prefers-reduced-motion: giữ scene tĩnh, không scroll animation.
+ * - Tab ẩn: dừng vòng render (frameloop="never") — tiết kiệm GPU/pin.
  * - theme: đổi màu hạt/vật thể cho hợp nền sáng hoặc tối.
  */
 export default function Scene({ theme = 'dark' }) {
   const isMobile = useIsMobile()
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [active, setActive] = useState(true)
   const mouse = useRef({ x: 0, y: 0 })
   const isLight = theme === 'light'
 
@@ -28,16 +30,23 @@ export default function Scene({ theme = 'dark' }) {
       mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1
       mouse.current.y = (e.clientY / window.innerHeight) * 2 - 1
     }
-    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointermove', onMove, { passive: true })
+
+    // Dừng render khi tab bị ẩn
+    const onVisibility = () => setActive(document.visibilityState === 'visible')
+    document.addEventListener('visibilitychange', onVisibility)
+
     return () => {
       mq.removeEventListener('change', onChange)
       window.removeEventListener('pointermove', onMove)
+      document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [])
 
   return (
     <div className="webgl-fixed" aria-hidden="true">
       <Canvas
+        frameloop={active ? 'always' : 'never'}
         dpr={[1, isMobile ? 1.5 : 2]}
         camera={{ position: [0, 0, 5], fov: 55 }}
         gl={{ antialias: !isMobile, powerPreference: 'high-performance', alpha: true }}
